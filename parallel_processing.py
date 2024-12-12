@@ -76,6 +76,7 @@ corpus_size_gauge = ocr_meter.create_gauge("corpus_size")
 processed_gauge = ocr_meter.create_gauge("processed")
 processed_pct_gauge = ocr_meter.create_gauge("processed_pct")
 
+
 def list_mets_files(parent_dir):
     return sorted(
         list(glob.glob(path.join(parent_dir, "**/*-METS.xml"), recursive=True))
@@ -212,7 +213,7 @@ def process_mets_files(
                 pd.DataFrame(mets_data).to_csv(output_file)
                 results_to_upload.append(output_file)
                 processed_mets_files.append(mets_file)
-                
+
                 if hasattr(meter_provider, "force_flush"):
                     metrics.get_meter_provider().force_flush()
             except Exception as e:
@@ -272,7 +273,7 @@ def alto_dir_pipeline(
 
     logging.info(f"Left to process {len(mets_files)} files in total.")
 
-    logging.info("Uploading any local results from previous unfinsed runs")
+    logging.info("Uploading any local results from previous unfinished runs")
     upload_corpus_results(output_dir)
 
     if len(mets_files) > max_files_to_process and max_files_to_process > 0:
@@ -283,6 +284,8 @@ def alto_dir_pipeline(
     download_corpus_subset(mets_files, data_dir, processed_manifest_file)
 
     mets_chunks = chunk_list(mets_files, math.ceil(len(mets_files) / num_processes))
+
+    logging.info(f"Running with {num_processes} worker processes.")
 
     with multiprocessing.Pool(processes=num_processes) as pool:
         # Map the process function to items asynchronously
@@ -309,7 +312,6 @@ def report_general_progress(
     processed_count = get_processed_count(processed_manifest_file)
     pct_done = processed_count * 100 / total_in_corpus
 
-    
     corpus_size_gauge.set(total_in_corpus)
     processed_gauge.set(processed_count)
     processed_pct_gauge.set(pct_done)
@@ -322,7 +324,7 @@ def report_general_progress(
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--data_dir", default="data")
 parser.add_argument("-o", "--output_dir", default="output")
-parser.add_argument("-l", "--max_files", required=False, default=10)
+parser.add_argument("-l", "--max_files", required=False, default=16)
 parser.add_argument("-s", "--skip_processed", default=True)
 parser.add_argument("-n", "--num_processes", default=multiprocessing.cpu_count())
 parser.add_argument("-c", "--corpus_manifest_file", default=default_manifest_file)

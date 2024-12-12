@@ -61,7 +61,7 @@ def remove_local_entry(corpus_entry: str, data_dir: str):
 
 
 def download_corpus_subset(
-    corpus_entries_to_download: list[str], data_dir: str, process_manifest_file: str
+    corpus_entries_to_download: list[str], data_dir: str, processed_manifest_file: str
 ) -> None:
     # get all entries locally stored
     local_entries = list_mets_files(data_dir)
@@ -76,7 +76,7 @@ def download_corpus_subset(
         download_entry(to_download_entry, data_dir)
 
     # Cleanup from local storage any processed entries
-    processed_entries = load_processed_manifest(process_manifest_file)
+    processed_entries = load_processed_manifest(processed_manifest_file)
 
     # not needed locally are processsed entries
     no_longer_locally_needed = set(local_entries).intersection(processed_entries)
