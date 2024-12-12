@@ -275,12 +275,12 @@ def alto_dir_pipeline(
     logging.info("Uploading any local results from previous unfinsed runs")
     upload_corpus_results(output_dir)
 
-    logging.info("Downloading required corpus data to process")
-    download_corpus_subset(mets_files, data_dir, processed_manifest_file)
-
     if len(mets_files) > max_files_to_process and max_files_to_process > 0:
         mets_files = mets_files[:max_files_to_process]
         logging.info(f"Limited to only process {len(mets_files)} files in total.")
+
+    logging.info("Downloading required corpus data to process")
+    download_corpus_subset(mets_files, data_dir, processed_manifest_file)
 
     mets_chunks = chunk_list(mets_files, math.ceil(len(mets_files) / num_processes))
 
