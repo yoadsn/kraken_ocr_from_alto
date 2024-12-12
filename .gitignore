@@ -1,0 +1,28 @@
+# Python normal ignores
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SageMaker ignores
+.sagemaker/
+.ipynb_checkpoints/
+
+# Misc ignores
+.idea/
+.DS_Store
+.env
+.vscode/
+
+# virtual envs
+venv/
+.venv/
+env
+.env/
+
+# corpus related data
+data/
+output/
+output_uploaded/
+*manifest.txt
+*.lock
+*.log
