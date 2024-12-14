@@ -130,7 +130,7 @@ def process_mets_files(
         model = models.load_any("model_best_9379_140624.mlmodel")
         ocr = ImageOCR(model=model, bw_threshold=150, baseline_model=baseline_model)
 
-        def process_blocks(blocks, olr, page_file):
+        def process_blocks(blocks, olr, page_file, mets_file):
             for block in tqdm(
                 blocks, disable=disable_tqdm, desc="process blocks of a page"
             ):
@@ -145,17 +145,17 @@ def process_mets_files(
                             ocr.get_text(olr.get_image_for_block(block))
                         )
                 except Exception as e:
-                    processing_errors_logger.error("Error in text: ")
+                    processing_errors_logger.error(f"{mets_file} - Error in text: ")
                     processing_errors_logger.exception(e)
                     block["ocr_text"] = ""
 
                 block_duration.record(time.time() - track_start_time)
                 block_counter.add(1)
 
-        def process_alto_page(page):
+        def process_alto_page(page, mets_file):
             olr = NewAltoReader(page)
             blocks = olr.get_text_blocks()
-            process_blocks(blocks, olr, page)
+            process_blocks(blocks, olr, page, mets_file)
             return blocks
 
         processed_mets_files = []
@@ -177,7 +177,7 @@ def process_mets_files(
                     page_track_start_time = time.time()
                     try:
                         logging.debug(f"Starting page {pi + 1} of {mets_file}")
-                        page_results = process_alto_page(page)
+                        page_results = process_alto_page(page, mets_file)
                         pages_results.extend(page_results)
                         logging.debug(f"Done with page {pi + 1} of {mets_file}")
                     except Exception as e:
