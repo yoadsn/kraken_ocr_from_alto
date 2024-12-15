@@ -1,0 +1,8 @@
+kraken~=4.3.0
+tqdm~=4.66.5
+pandas~=2.2.2
+threadpoolctl
+azure-storage-blob
+python-dotenv
+filelock
+azure-monitor-opentelemetry
