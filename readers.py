@@ -430,7 +430,7 @@ def build_mets(mets_root):
                             f".//{namespace_mets}div[@TYPE='BODY_CONTENT']"
                         )
                         begins = []
-                        if d_body_content is not None:
+                        if d_body_content is not None and len(d_body_content) > 0:
                             for body_content in d_body_content:
                                 areas = body_content.findall(
                                     f".//{namespace_mets}area[@BETYPE='IDREF']"
