@@ -74,6 +74,8 @@ block_counter = ocr_meter.create_counter("block_count")
 block_duration = ocr_meter.create_histogram("block_duration")
 corpus_size_gauge = ocr_meter.create_gauge("corpus_size")
 processed_gauge = ocr_meter.create_gauge("processed")
+left_to_process_in_run_gauge = ocr_meter.create_gauge("left_in_run")
+processed_with_error_counter = ocr_meter.create_counter("processed_with_error")
 processed_pct_gauge = ocr_meter.create_gauge("processed_pct")
 
 
@@ -160,6 +162,7 @@ def process_mets_files(
 
         processed_mets_files = []
         results_to_upload = []
+        left_to_process = len(mets_files)
         for mets_file in tqdm(mets_files, desc="process issue within a worker"):
             issue_track_start_time = time.time()
             mets_file_on_disk = os.path.join(
@@ -219,6 +222,7 @@ def process_mets_files(
             except Exception as e:
                 processing_errors_logger.error(f"Failed to process file: {mets_file}")
                 processing_errors_logger.exception(e)
+                processed_with_error_counter.add(1)
 
             if len(processed_mets_files) >= checkpoint_processed_every:
                 append_to_processed_manifest(
@@ -231,6 +235,8 @@ def process_mets_files(
 
             issue_duration.record(time.time() - issue_track_start_time)
             issue_counter.add(1)
+            left_to_process -= 1
+            left_to_process_in_run_gauge.set(left_to_process)
 
         if len(processed_mets_files) > 0:
             append_to_processed_manifest(processed_mets_files, processed_manifest_file)
